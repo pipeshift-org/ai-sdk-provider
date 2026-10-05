@@ -8,3 +8,4 @@ dist/
 coverage/
 tasks.md
 .npmrc
+vercel-ai-issue.md

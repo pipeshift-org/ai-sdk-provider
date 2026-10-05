@@ -1,6 +1,6 @@
 # Pipeshift Provider for the AI SDK
 
-`@pipeshift-org/ai-sdk-provider` connects the [Vercel AI SDK](https://ai-sdk.dev) to [Pipeshift](https://pipeshift.com). It covers the serverless model APIs and dedicated deployments. You can use Pipeshift models with `generateText`, `streamText`, tool calling, structured output and embeddings.
+`@pipeshift-org/ai-sdk-provider` connects the [Vercel AI SDK](https://ai-sdk.dev) to [Pipeshift](https://pipeshift.com). It covers the serverless model APIs and dedicated deployments. You can use Pipeshift models with `generateText`, `streamText`, tool calling, image input, structured output and embeddings.
 
 ## Installation
 
@@ -53,7 +53,7 @@ const { text } = await generateText({
 console.log(text);
 ```
 
-All four serverless models reason before they answer, and reasoning tokens count toward `maxOutputTokens`. If you set a low limit, the model can run out of tokens before it writes any text. In that case `finishReason` is `length`. A haiku from GLM-5.3 used about 1,600 reasoning tokens in our tests.
+Every serverless model reasons before it answers, and reasoning tokens count toward `maxOutputTokens`. If you set a low limit, the model can run out of tokens before it writes any text. In that case `finishReason` is `length`. A haiku from GLM-5.3 used about 1,600 reasoning tokens in our tests.
 
 ## Streaming
 
@@ -102,7 +102,7 @@ console.log(result.text);
 
 ## Reasoning models
 
-All four serverless models (`zai-org/GLM-5.3`, `zai-org/GLM-5.2`, `deepseek-ai/DeepSeek-V4.1-Flash` and `Qwen/Qwen3.8-Max`) return their reasoning separately from the answer. The AI SDK exposes it in three places:
+Every serverless model returns its reasoning separately from the answer. The AI SDK exposes it in three places:
 
 - `result.finalStep.reasoningText` holds the reasoning from `generateText`. In AI SDK 7, `result.reasoningText` still works but is deprecated.
 - `reasoning-delta` parts appear in `streamText`'s `fullStream`.
@@ -129,6 +129,29 @@ for await (const part of result.fullStream) {
   if (part.type === 'reasoning-delta') process.stdout.write(part.text);
   if (part.type === 'text-delta') process.stdout.write(part.text);
 }
+```
+
+## Image input
+
+The models marked with image input in [Model ids](#model-ids) accept images in the message content. Pass the bytes, a base64 string or a URL as an `image` part. The AI SDK downloads a URL itself and sends the image inline.
+
+```ts
+import { pipeshift } from '@pipeshift-org/ai-sdk-provider';
+import { generateText } from 'ai';
+import { readFileSync } from 'node:fs';
+
+const { text } = await generateText({
+  model: pipeshift('Qwen/Qwen3.8-Flash'),
+  messages: [
+    {
+      role: 'user',
+      content: [
+        { type: 'text', text: 'What is in this picture?' },
+        { type: 'image', image: readFileSync('./photo.png'), mediaType: 'image/png' },
+      ],
+    },
+  ],
+});
 ```
 
 ## Structured output
@@ -189,7 +212,7 @@ The provider sends `PIPESHIFT_API_KEY` (or `apiKey`) to the deployment as a Bear
 
 ## Embeddings
 
-Serve an embedding model on a dedicated deployment, then create the model with `embeddingModel` and call `embed` or `embedMany`.
+The serverless API has no embedding models. Serve an embedding model on a dedicated deployment, then create the model with `embeddingModel` and call `embed` or `embedMany`.
 
 ```ts
 import { createPipeshift } from '@pipeshift-org/ai-sdk-provider';
@@ -224,12 +247,18 @@ const { embeddings } = await embedMany({
 
 ## Model ids
 
-These serverless chat models are available today:
+These serverless chat models are available today. All of them return reasoning.
 
-- `zai-org/GLM-5.3`
-- `zai-org/GLM-5.2`
-- `deepseek-ai/DeepSeek-V4.1-Flash`
-- `Qwen/Qwen3.8-Max`
+| Model id | Image input |
+| --- | --- |
+| `Qwen/Qwen3.8-Flash` | yes |
+| `Qwen/Qwen3.8-Max` | yes |
+| `deepseek-ai/DeepSeek-V4.1-Flash` | yes |
+| `deepseek-ai/DeepSeek-V4-Flash` | no |
+| `deepseek-ai/DeepSeek-V4-Pro` | no |
+| `moonshotai/Kimi-K3` | yes |
+| `zai-org/GLM-5.3` | no |
+| `zai-org/GLM-5.2` | no |
 
 Pipeshift has no model listing endpoint. Find current ids in the Pipeshift dashboard. The `PipeshiftChatModelId` type lists the ids above for editor completion, and any other string is accepted.
 
