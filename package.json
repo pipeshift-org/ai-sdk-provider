@@ -1,0 +1,74 @@
+{
+  "name": "@pipeshift-org/ai-sdk-provider",
+  "version": "0.1.0",
+  "description": "Pipeshift provider for the Vercel AI SDK: serverless model APIs and dedicated deployments",
+  "type": "module",
+  "license": "Apache-2.0",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/**/*",
+    "src",
+    "!src/**/*.test.ts",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "example": "node --env-file=.env --import tsx"
+  },
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "^3.0.62",
+    "@ai-sdk/provider": "^4.0.21",
+    "@ai-sdk/provider-utils": "^5.0.53"
+  },
+  "devDependencies": {
+    "@ai-sdk/test-server": "^2.0.3",
+    "@types/node": "^22.19.19",
+    "ai": "^7.0.127",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.0",
+    "zod": "^4.1.8"
+  },
+  "peerDependencies": {
+    "zod": "^3.25.76 || ^4.1.8"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/pipeshift-org/ai-sdk-provider#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pipeshift-org/ai-sdk-provider.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pipeshift-org/ai-sdk-provider/issues"
+  },
+  "keywords": [
+    "ai",
+    "ai-sdk",
+    "vercel-ai-sdk",
+    "pipeshift",
+    "llm",
+    "openai-compatible"
+  ]
+}
